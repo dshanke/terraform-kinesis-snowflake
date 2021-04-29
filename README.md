@@ -1,5 +1,4 @@
 # Terraform solution to ingest streaming data into Snowflake using AWS Kinesis Firehose Delivery Stream & Snowflake's Snowpipe integration
-(The blog for this repo is published at https://cevo.com.au/post/terraform-streaming-data-into-snowflake-via-kinesis)
 
 ## Goal
 To demonstrate how terraform can be used to 
