@@ -109,7 +109,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 3.0"
+      version = "3.20.0"
     }
   }
 }
@@ -207,8 +207,11 @@ Roll out the stack by executing terraform commands.
 
 ```bash
 cd ~/demo.env/tf
-terraform init && terraform plan
-terraform init && terraform apply --auto-approve
+terraform init
+#run terraform plan to see what resources will be created/added
+terraform plan
+#create the resources
+terraform apply --auto-approve
 ```
 
 If all goes well, you will see the following message:    
@@ -378,8 +381,11 @@ Update the stack by executing terraform commands.
 
 ```bash
 cd ~/demo.env/tf
-terraform init && terraform plan
-terraform init && terraform apply --auto-approve
+terraform init
+#run terraform plan to see what resources will be created/added
+terraform plan
+#create the resources
+terraform apply --auto-approve
 ```
 
 If all goes well, you will see the following message:    
@@ -499,8 +505,11 @@ Update the stack by executing terraform commands.
 
 ```bash
 cd ~/demo.env/tf
-terraform init && terraform plan
-terraform init && terraform apply --auto-approve
+terraform init
+#run terraform plan to see what resources will be created/added
+terraform plan
+#create the resources
+terraform apply --auto-approve
 ```
 If all goes well, you will see the following message:
 `Apply complete! Resources: 3 added, 0 changed, 0 destroyed.`
@@ -523,7 +532,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 3.0"
+      version = "3.20.0"
     }
     snowflake = {
       source = "chanzuckerberg/snowflake"
@@ -615,7 +624,7 @@ locals {
 
 resource "snowflake_warehouse" "TWI_WH" {
   name           = "TWI_WH"
-  comment        = "twitter analisys wh"
+  comment        = "twitter analysis wh"
   warehouse_size = "XSMALL"
   auto_suspend   = 120
   auto_resume    = true
@@ -627,7 +636,7 @@ resource "snowflake_database" "TWIDB" {
   data_retention_time_in_days = 1
 }
 
-#creates snowflake table. Notice the data type of column is a variant type which allows us to store json like data
+#creates a snowflake table. Notice the data type of column is a variant type which allows us to store json like data
 resource "snowflake_table" "TWI_TABLE" {
   database = snowflake_database.TWIDB.name
   schema   = "PUBLIC"
@@ -638,10 +647,9 @@ resource "snowflake_table" "TWI_TABLE" {
     type = "VARIANT"
   }
 }
-
 #Creates snowflake external stage from (s3) which snowpipe will read data files
-#we ae using aws access keys here to allow access to s3, but as mentioned earlier
-#external IAM role can be used to manage the cross account access control in a better way.
+#we are using aws access keys here to allow access to s3, but as mentioned earlier
+#external IAM roles can be used to manage the cross account access control in a better way.
 #Refer https://docs.snowflake.com/en/user-guide/data-load-snowpipe-auto-s3.html
 resource "snowflake_stage" "external_stage_s3" {
   name        = "TWITTER_STAGE"
@@ -671,7 +679,7 @@ output "sqs_4_snowpipe" {
   value = snowflake_pipe.snowpipe.notification_channel
 }
 ```
-**Special Note:** The `snowflake-setup` module's output `sqs_4_snowpipe` gives us the sqs notification chanel that we will configure later in our s3 bucket for event notifications.
+**Note:** The `snowflake-setup` module's output `sqs_4_snowpipe` gives us the sqs notification chanel that we will configure later in our s3 bucket for event notifications.
 
 Update your main file under our working directory to include invocation of the `snowflake-setup` module. Note how we are passing the iam user access credentials as input to the snowflake-setup module.
 
@@ -710,8 +718,11 @@ Update the stack by executing terraform commands.
 
 ```bash
 cd ~/demo.env/tf
-terraform init && terraform plan
-terraform init && terraform apply --auto-approve
+terraform init
+#run terraform plan to see what resources will be created/added
+terraform plan
+#create the resources
+terraform apply --auto-approve
 ```
 
 If all goes well, you will see the following message:
@@ -764,8 +775,11 @@ Update the stack by executing terraform commands.
 
 ```bash
 cd ~/demo.env/tf
-terraform init && terraform plan
-terraform init && terraform apply --auto-approve
+terraform init
+#run terraform plan to see what resources will be created/added
+terraform plan
+#create the resources
+terraform apply --auto-approve
 ```
 If all goes well, you will see the following message:
 `Apply complete! Resources: 1 added, 0 changed, 0 destroyed.`
@@ -926,7 +940,9 @@ And simply execute terraform destroy.
 
 ```bash
 cd ~/demo.env/tf
-terraform init && terraform destroy --auto-approve
+terraform init
+#destroy all the resources
+terraform destroy --auto-approve
 ```
 
 ## A lot more to consider...
