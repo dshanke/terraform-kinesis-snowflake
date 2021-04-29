@@ -1,5 +1,4 @@
 # Terraform solution to ingest streaming data into Snowflake using AWS Kinesis Firehose Delivery Stream & Snowflake's Snowpipe integration
-(The blog for this repo is published at https://cevo.com.au/post/terraform-streaming-data-into-snowflake-via-kinesis)
 
 ## Goal
 To demonstrate how terraform can be used to 
@@ -18,9 +17,6 @@ To demonstrate how terraform can be used to
 	* S3 Bucket Event Notification
 	* Kinesis Firehose Delivery Stream
 * Configure the resources to deliver the stream from external sources (e.g. twitter) into snowflake using aws kinesis firehose delivery stream. ![alt text](img/birdsview.jpeg "")
-
-## Git Repository Link
-The entire code can be found under @ [terraform-firehose-snowflake](https://github.com/cevoaustralia/terraform-firehose-snowflake)
 
 ## Assumptions and Prerequisites
 * Developing on a Mac or Linux
@@ -94,9 +90,9 @@ First start by create a new folder. This will be our working folder.
 
 ```bash
 cd ~
-rm -rf ~/demo.cevo
-mkdir -p ~/demo.cevo/tf
-cd ~/demo.cevo
+rm -rf ~/demo.env
+mkdir -p ~/demo.env/tf
+cd ~/demo.env
 ```
 
 #### Create aws provider file
@@ -104,7 +100,7 @@ Terraform relies on plugins called "[providers](https://www.terraform.io/docs/la
 Let's create the two files - one which declares the `required providers` and other which declares the `providers`.
 
 ```bash
-cd ~/demo.cevo/tf
+cd ~/demo.env/tf
 # create 'required_provider.tf' file here. See output of following cat command for the content of the file.
 cat required_provider.tf
 ```
@@ -119,7 +115,7 @@ terraform {
 }
 ```
 ```bash
-cd ~/demo.cevo/tf
+cd ~/demo.env/tf
 # create 'provider.tf' file here. See output of following cat command for the content of the file.
 cat provider.tf
 ```
@@ -132,7 +128,7 @@ provider "aws" {
 Test the provider configuration by executing terraform init.
 
 ```bash
-cd ~/demo.cevo/tf
+cd ~/demo.env/tf
 terraform init
 ```
 If you get `Terraform has been successfully initialized!` message then we can proceed further. If not check that you have terraform (>v0.13> installed and have defined the provider files properly.
@@ -144,8 +140,8 @@ Here we shall define a terraform module named as `s3bucket-for-sf` which will us
 Note: We will also create a soft link from within the module to the `required providers` file - this is something terraform needs when working with modules. We will do this for every new module that we define.
 
 ```sh
-mkdir -p ~/demo.cevo/tf/modules/s3bucket-for-sf
-cd ~/demo.cevo/tf/modules/s3bucket-for-sf
+mkdir -p ~/demo.env/tf/modules/s3bucket-for-sf
+cd ~/demo.env/tf/modules/s3bucket-for-sf
 #creating the soft link to required provider
 ln -snf ../../required_provider.tf required_provider.tf
 # create 'variables.tf' file here. See output of following cat command for the content of the file.
@@ -155,7 +151,7 @@ cat variables.tf
 variable "s3_bucket_name" { type = string }
 ```
 ```bash
-cd ~/demo.cevo/tf/modules/s3bucket-for-sf
+cd ~/demo.env/tf/modules/s3bucket-for-sf
 # create 'main.tf' file here. See output of following cat command for the content of the file.
 cat main.tf
 ```
@@ -185,7 +181,7 @@ output "bucket" {
 Define your variable file and main file in your working directory which will invoke the `s3bucket-for-sf` terraform module.
 
 ```bash
-cd ~/demo.cevo/tf
+cd ~/demo.env/tf
 # create 'variables.tf' file here. See output of following cat command for the content of the file.
 cat variables.tf
 ```
@@ -196,7 +192,7 @@ variable "twi_s3_bucket_name" {
 }
 ```
 ```bash
-cd ~/demo.cevo/tf
+cd ~/demo.env/tf
 # create 'main.tf' file here. See output of following cat command for the content of the file.
 cat main.tf
 ```
@@ -210,7 +206,7 @@ module "s3bucket-for-sf" {
 Roll out the stack by executing terraform commands.
 
 ```bash
-cd ~/demo.cevo/tf
+cd ~/demo.env/tf
 terraform init && terraform plan
 terraform init && terraform apply --auto-approve
 ```
@@ -234,8 +230,8 @@ The module will set up the following:
 Let's define the module `kinesis-setup` code
 
 ```bash
-mkdir -p ~/demo.cevo/tf/modules/kinesis-setup
-cd ~/demo.cevo/tf/modules/kinesis-setup
+mkdir -p ~/demo.env/tf/modules/kinesis-setup
+cd ~/demo.env/tf/modules/kinesis-setup
 #creating the soft link to required provider
 ln -snf ../../required_provider.tf required_provider.tf
 # create 'variables.tf' file here. See output of following cat command for the content of the file.
@@ -247,7 +243,7 @@ variable "kinesis_firehose_stream_name" { type = string }
 ```
 
 ```bash
-cd ~/demo.cevo/tf/modules/kinesis-setup
+cd ~/demo.env/tf/modules/kinesis-setup
 # create 'firehose_access_policy.tf' file here. See output of following cat command for the content of the file.
 cat firehose_access_policy.tf
 ```
@@ -300,7 +296,7 @@ data "aws_iam_policy_document" "kinesis_firehose_cw_policy" {
 }
 ```
 ```bash
-cd ~/demo.cevo/tf/modules/kinesis-setup
+cd ~/demo.env/tf/modules/kinesis-setup
 # create 'main.tf' file here. See output of following cat command for the content of the file.
 cat main.tf
 ```
@@ -345,7 +341,7 @@ resource "aws_kinesis_firehose_delivery_stream" "fh_stream" {
 Update the your variable file and main file in your working directory to include invocation of the `kinesis-setup` module.
 
 ```bash
-cd ~/demo.cevo/tf
+cd ~/demo.env/tf
 # update the 'variables.tf' file here. See output of following cat command for the content of the file.
 cat variables.tf
 ```
@@ -361,7 +357,7 @@ variable "twi_kinesis_firehose_stream_name" {
 }
 ```
 ```bash
-cd ~/demo.cevo/tf
+cd ~/demo.env/tf
 # update the 'main.tf' file here. See output of following cat command for the content of the file.
 cat main.tf
 ```
@@ -381,7 +377,7 @@ module "kinesis-setup" {
 Update the stack by executing terraform commands.
 
 ```bash
-cd ~/demo.cevo/tf
+cd ~/demo.env/tf
 terraform init && terraform plan
 terraform init && terraform apply --auto-approve
 ```
@@ -396,8 +392,8 @@ Snowflake needs access to the s3 bucket. Ideally a role is created to allow cros
 We proceed to create the `iam-user-for-sf` module.
 
 ```bash
-mkdir -p ~/demo.cevo/tf/modules/iam-user-for-sf
-cd ~/demo.cevo/tf/modules/iam-user-for-sf
+mkdir -p ~/demo.env/tf/modules/iam-user-for-sf
+cd ~/demo.env/tf/modules/iam-user-for-sf
 #creating the soft link to required provider
 ln -snf ../../required_provider.tf required_provider.tf
 # create the 'variables.tf' file here. See output of following cat command for the content of the file.
@@ -410,7 +406,7 @@ variable "s3bucket_arn" { type = string }
 
 ```bash
 # create the 'main.tf' file here. See output of following cat command for the content of the file.
-cd ~/demo.cevo/tf/modules/iam-user-for-sf
+cd ~/demo.env/tf/modules/iam-user-for-sf
 cat main.tf
 ```
 ```hcl
@@ -455,7 +451,7 @@ Above code will create an iam policy that allows read only permission to the spe
 Update your variable file and main file in your working directory to include invocation of the `iam-user-for-sf` module.
 
 ```bash
-cd ~/demo.cevo/tf
+cd ~/demo.env/tf
 # update the 'variables.tf' file here. See output of following cat command for the content of the file.
 cat variables.tf
 ```
@@ -476,7 +472,7 @@ variable "iam_username_for_sf" {
 }
 ```
 ```bash
-cd ~/demo.cevo/tf
+cd ~/demo.env/tf
 # update the 'main.tf' file here. See output of following cat command for the content of the file.
 cat main.tf
 ```
@@ -502,7 +498,7 @@ module "iam-user-for-sf" {
 Update the stack by executing terraform commands.
 
 ```bash
-cd ~/demo.cevo/tf
+cd ~/demo.env/tf
 terraform init && terraform plan
 terraform init && terraform apply --auto-approve
 ```
@@ -518,7 +514,7 @@ Assumption here is that you have setup your [snowflake account](https://signup.s
 First let's update the provider files as shown below:
 
 ```bash
-cd ~/demo.cevo/tf
+cd ~/demo.env/tf
 # update the 'required_provider.tf' file here. See output of following cat command for the content of the file.
 cat required_provider.tf
 ```
@@ -538,7 +534,7 @@ terraform {
 ```
 ```bash
 # update the 'required_provider.tf' file here. See output of following cat command for the content of the file.
-cd ~/demo.cevo/tf
+cd ~/demo.env/tf
 cat provider.tf
 ```
 ```hcl
@@ -555,7 +551,7 @@ provider "snowflake" {
 At this stage it may be a good idea to test your provider configuration by executing terraform init.
 
 ```bash
-cd ~/demo.cevo/tf
+cd ~/demo.env/tf
 terraform init
 ```
 If you see something like `Installing chanzuckerberg/snowflake v0.20.0...` followed by get `Terraform has been successfully initialized!` message then we can proceed further. If not, check that you have terraform installed and have defined the provider files properly.
@@ -595,8 +591,8 @@ Snowpipe                 | snowpipe
 Proceed to create the `snowflake-setup` module as shown below
 
 ```bash
-mkdir -p ~/demo.cevo/tf/modules/snowflake-setup
-cd ~/demo.cevo/tf/modules/snowflake-setup
+mkdir -p ~/demo.env/tf/modules/snowflake-setup
+cd ~/demo.env/tf/modules/snowflake-setup
 #creating the soft link to required provider
 ln -snf ../../required_provider.tf required_provider.tf
 # create the 'variables.tf' file here. See output of following cat command for the content of the file.
@@ -609,7 +605,7 @@ variable "external_s3_bucket" { type = string }
 ```
 ```bash
 # create the 'main.tf' file here. See output of following cat command for the content of the file.
-cd ~/demo.cevo/tf/modules/snowflake-setup
+cd ~/demo.env/tf/modules/snowflake-setup
 cat main.tf
 ```
 ```hcl
@@ -680,7 +676,7 @@ output "sqs_4_snowpipe" {
 Update your main file under our working directory to include invocation of the `snowflake-setup` module. Note how we are passing the iam user access credentials as input to the snowflake-setup module.
 
 ```bash
-cd ~/demo.cevo/tf
+cd ~/demo.env/tf
 # update the 'main.tf' file here. See output of following cat command for the content of the file.
 cat main.tf
 ```
@@ -713,7 +709,7 @@ module "snowflake-setup" {
 Update the stack by executing terraform commands.
 
 ```bash
-cd ~/demo.cevo/tf
+cd ~/demo.env/tf
 terraform init && terraform plan
 terraform init && terraform apply --auto-approve
 ```
@@ -726,7 +722,7 @@ If all goes well, you will see the following message:
 Update your main file under our working directory to configure s3 bucket's all object create events to notify snowpipe's sqs queue.
 Unlike previous cases where we invoke terraform module, this time we shall directly specify 'aws_s3_bucket_notification' resource creation directive.
 ```bash
-cd ~/demo.cevo/tf
+cd ~/demo.env/tf
 # update the 'main.tf' file here. See output of following cat command for the content of the file.
 cat main.tf
 ```
@@ -767,7 +763,7 @@ resource "aws_s3_bucket_notification" "bucket_notification_to_sqs" {
 Update the stack by executing terraform commands.
 
 ```bash
-cd ~/demo.cevo/tf
+cd ~/demo.env/tf
 terraform init && terraform plan
 terraform init && terraform apply --auto-approve
 ```
@@ -816,8 +812,8 @@ export twi_kinesis_firehose_stream_name="terraform-kinesis-firehose-twi-stream"
 
 Create the python script to read twitter streams and forward the same to firehose:
 ```bash
-mkdir ~/demo.cevo/scripts
-cd ~/demo.cevo/scripts
+mkdir ~/demo.env/scripts
+cd ~/demo.env/scripts
 # create the 'get-twitter-streams.py' file here. See output of following cat command for the content of the file.
 cat get-twitter-streams.py
 ```
@@ -910,7 +906,7 @@ As soon as you have tested the client, terminate the client program.
 Let's proceed to execute the above program:
 
 ```bash
-cd ~/demo.cevo
+cd ~/demo.env
 python3 scripts/get-twitter-streams.py
 ```
 
@@ -929,7 +925,7 @@ Terminate the python program by pressing CTRL^C on your console.
 And simply execute terraform destroy.
 
 ```bash
-cd ~/demo.cevo/tf
+cd ~/demo.env/tf
 terraform init && terraform destroy --auto-approve
 ```
 
